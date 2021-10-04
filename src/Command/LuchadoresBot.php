@@ -128,9 +128,7 @@ class LuchadoresBot extends Command
         $imageName = $tokenId . '.' . $imageExtension;
 
         // if image is not in local, grab it on a server to save it in local
-        try {
-            file_get_contents($projectRoot . DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR. $imageFolder . DIRECTORY_SEPARATOR . $imageName);
-        } catch (\Exception $e) {
+        if (($data = @file_get_contents($projectRoot . DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR. $imageFolder . DIRECTORY_SEPARATOR . $imageName)) === false) {
             $io->info("[INFO] Save image for a Luchadores : " . $tokenId);
             $imageCompleteUrl = $imageUrl . $imageName;
             file_put_contents($projectRoot . DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR. $imageFolder . DIRECTORY_SEPARATOR . $imageName, file_get_contents($imageCompleteUrl));
