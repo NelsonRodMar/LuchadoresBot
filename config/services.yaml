@@ -4,6 +4,17 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    TWITTER_CONSUMER_KEY: '%env(TWITTER_CONSUMER_KEY)%'
+    TWITTER_CONSUMER_SECRET: '%env(TWITTER_CONSUMER_SECRET)%'
+    TWITTER_ACCESS_TOKEN: '%env(TWITTER_ACCESS_TOKEN)%'
+    TWITTER_ACCESS_TOKEN_SECRET: '%env(TWITTER_ACCESS_TOKEN_SECRET)%'
+    TWITTER_USER_ID: '%env(TWITTER_USER_ID)%'
+    OPENSEA_API_KEY: '%env(OPENSEA_API_KEY)%'
+    LUCHADORES_IMAGE_URL: '%env(LUCHADORES_IMAGE_URL)%'
+    LUCHADORES_TOKEN_URL: 'https://luchadores.io/luchador/'
+    LUCHADORES_IMAGE_FOLDER: 'luchadores-pictures'
+    LUCHADORES_IMAGE_EXTENSION: 'png'
+    LUCHADORES_CONTRACT_ADRESS: '0x8b4616926705fb61e9c4eeac07cd946a5d4b0760'
 
 services:
     # default configuration for services in *this* file
