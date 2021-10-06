@@ -70,40 +70,43 @@ class LuchadoresBot extends Command
 
         $io->info('--- Start tweet new sales ('.$actualTime->format('m-d-Y H:i:s').') ---');
         foreach ($allSales as $sale){
-            $tokenId = $sale["asset"]["token_id"];
-            $luchadore = $this->openseaApi->getAllDataNFT($contract, $tokenId);
-            if($luchadore == null){
-                $io->error('[ERROR] Impossible to get all data for Luchadores #'.$tokenId);
-                continue;
-            }
-
-            $imagePath = $this->getImageUrl($io, $tokenId);
-            $twitterMediaId = $this->twitterApi->postUploadImage($imagePath);
-            if($twitterMediaId !== null) {
-                $number = count($luchadore['traits']) - 1;
-                $numberAttribute = $luchadore['traits'][$number]['value'];
-                dump($tokenId);
-                $textContent = 'Luchadores #' . $tokenId . ' with ';
-                if ($numberAttribute <= 1 ) {
-                    $textContent .= $numberAttribute .' attribute' ;
-                } else {
-                    $textContent .= $numberAttribute .' attributes' ;
+            if (null != $sale["asset"]) {
+                $tokenId = $sale["asset"]["token_id"];
+                $luchadore = $this->openseaApi->getAllDataNFT($contract, $tokenId);
+                if ($luchadore == null) {
+                    $io->error('[ERROR] Impossible to get all data for Luchadores #' . $tokenId);
+                    continue;
                 }
-                $numberOfTokenSale = $sale["total_price"] /  pow(10, $sale["payment_token"]["decimals"]);
-                $sellerAdresse = $sale["seller"]["user"]["username"] !== null ? $sale["seller"]["user"]["username"] : substr($sale["seller"]["address"], 0, 8);
-                $buyerAdresse = $sale["winner_account"]["user"]["username"] !== null ? $sale["seller"]["user"]["username"] : substr($sale["winner_account"]["address"], 0, 8);
-                $usdPrice = $numberOfTokenSale * $sale["payment_token"]["usd_price"];
-                $textContent .= ' bought for ' . $numberOfTokenSale . ' ' . $sale["payment_token"]["symbol"] . '($'. $usdPrice . ') by ' . $buyerAdresse . ' from ' . $sellerAdresse . '.'. chr(13) . chr(10) . $luchadoreTokenUrl . $tokenId;
 
-                $result = $this->twitterApi->newTweet($textContent, $twitterMediaId);
-                if ($result == false) {
-                    $io->error('[ERROR] Impossible to make a new Tweet for Luchadores #'.$tokenId);
+                $imagePath = $this->getImageUrl($io, $tokenId);
+                $twitterMediaId = $this->twitterApi->postUploadImage($imagePath);
+                if ($twitterMediaId !== null) {
+                    $number = count($luchadore['traits']) - 1;
+                    $numberAttribute = $luchadore['traits'][$number]['value'];
+                    $textContent = 'Luchador #' . $tokenId . ' with ';
+                    if ($numberAttribute <= 1) {
+                        $textContent .= $numberAttribute . ' attribute';
+                    } else {
+                        $textContent .= $numberAttribute . ' attributes';
+                    }
+                    $numberOfTokenSale = $sale["total_price"] / pow(10, $sale["payment_token"]["decimals"]);
+                    $sellerAdresse = $sale["seller"]["user"]["username"] !== null ? $sale["seller"]["user"]["username"] : substr($sale["seller"]["address"], 0, 8);
+                    $buyerAdresse = $sale["winner_account"]["user"]["username"] !== null ? $sale["winner_account"]["user"]["username"] : substr($sale["winner_account"]["address"], 0, 8);
+                    $usdPrice = $numberOfTokenSale * $sale["payment_token"]["usd_price"];
+                    $textContent .= ' bought for ' . $numberOfTokenSale . ' ' . $sale["payment_token"]["symbol"] . '($' . $usdPrice . ') by ' . $buyerAdresse . ' from ' . $sellerAdresse . '.' . chr(13) . chr(10) . $luchadoreTokenUrl . $tokenId;
+
+                    $result = $this->twitterApi->newTweet($textContent, $twitterMediaId);
+                    if ($result == false) {
+                        $io->error('[ERROR] Impossible to make a new Tweet for Luchadores #' . $tokenId);
+                    } else {
+                        $io->info('[INFO] New tweet for Luchadores #' . $tokenId);
+                    }
                 } else {
-                    $io->info('[INFO] New tweet for Luchadores #'.$tokenId);
+                    $io->error('[ERROR] Impossible to post picture on Twitter for Luchadores #' . $tokenId);
+                    continue;
                 }
-            } else {
-                $io->error('[ERROR] Impossible to post picture on Twitter for Luchadores #'.$tokenId);
-                continue;
+            } elseif (null != $sale["asset_bundle"]) {
+                //TODO: Manage bundle sales
             }
         }
         $io->info('--- End tweet new sales ---');
